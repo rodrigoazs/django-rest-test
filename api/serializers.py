@@ -1,11 +1,6 @@
 from rest_framework import serializers
 
 
-class AccountSerializer(serializers.Serializer):
-    is_active = serializers.BooleanField()
-    balance = serializers.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-
-
 class UserSerializer(serializers.Serializer):
     username = serializers.CharField()
     first_name = serializers.CharField()

@@ -1,5 +1,3 @@
-import datetime
-
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import HttpResponse
@@ -9,12 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Account
-from .serializers import (
-    AccountBalanceSerializer,
-    AccountSerializer,
-    AmountSerializer,
-    UserSerializer,
-)
+from .serializers import AccountBalanceSerializer, AmountSerializer, UserSerializer
 
 
 def index(request):
@@ -23,23 +16,26 @@ def index(request):
 
 class AccountCreateView(APIView):
     def post(self, request):
-        account_serializer = AccountSerializer(data=request.data)
-        user_seriallizer = UserSerializer(data=request.data)
-        if account_serializer.is_valid() and user_seriallizer.is_valid():
-            password = user_seriallizer.validated_data.get("password")
-            user = User.objects.create(**user_seriallizer.validated_data)
+        user_serializer = UserSerializer(data=request.data)
+        if user_serializer.is_valid():
+            password = user_serializer.validated_data.get("password")
+            user = User.objects.create(**user_serializer.validated_data)
             user.set_password(password)
             user.save()
-            account = Account.objects.create(
-                **account_serializer.validated_data,
-                date_created=datetime.datetime.now(),
-                user=user,
-            )
+            account = Account.objects.create(user=user)
             account.save()
-            return Response(account_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(
-            {"account": account_serializer.errors, "user": user_seriallizer.errors}, status=status.HTTP_400_BAD_REQUEST
-        )
+            response = {
+                "date_created": account.date_created,
+                "is_active": account.is_active,
+                "balance": account.balance,
+                "username": user.username,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+            }
+
+            return Response({"message": "account created", "data": response}, status=status.HTTP_201_CREATED)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AccountBalanceView(APIView):
@@ -68,7 +64,7 @@ class DepositView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class Withdrawl(APIView):
+class Withdrawal(APIView):
     permission_classes = (IsAuthenticated,)
 
     def put(self, request, pk):
@@ -83,7 +79,7 @@ class Withdrawl(APIView):
                         account.balance -= amount
                         account.save()
                         return Response(
-                            {"message": "withdrawl made", "balance": account.balance}, status=status.HTTP_201_CREATED
+                            {"message": "withdrawal made", "balance": account.balance}, status=status.HTTP_201_CREATED
                         )
                     else:
                         return Response(
