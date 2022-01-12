@@ -6,3 +6,9 @@ install:
 	pip install pre-commit
 	pip install -r requirements.txt
 	pre-commit install
+
+migrations:
+	python3 manage.py makemigrations
+
+migrate:
+	python3 manage.py migrate
