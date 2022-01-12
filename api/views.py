@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from rest_framework import status
@@ -5,7 +7,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Account
-from .serializers import AccountBalanceSerializer, AccountSerializer, AmountSerializer
+from .serializers import (
+    AccountBalanceSerializer,
+    AccountSerializer,
+    AmountSerializer,
+    UserSerializer,
+)
 
 
 def index(request):
@@ -14,26 +21,23 @@ def index(request):
 
 class AccountCreateView(APIView):
     def post(self, request):
-        serializer = AccountSerializer(data=request.data)
-        if serializer.is_valid():
-            password = serializer.validated_data.get("password")
-            user = User.objects.create(
-                username=serializer.validated_data.get("username"),
-                first_name=serializer.validated_data.get("first_name"),
-                last_name=serializer.validated_data.get("last_name"),
-                email=serializer.validated_data.get("email"),
-            )
+        account_serializer = AccountSerializer(data=request.data)
+        user_seriallizer = UserSerializer(data=request.data)
+        if account_serializer.is_valid() and user_seriallizer.is_valid():
+            password = user_seriallizer.validated_data.get("password")
+            user = User.objects.create(**user_seriallizer.validated_data)
             user.set_password(password)
             user.save()
             account = Account.objects.create(
-                date_created=serializer.validated_data.get("date_created"),
-                is_active=serializer.validated_data.get("is_active"),
-                balance=serializer.validated_data.get("balance"),
+                **account_serializer.validated_data,
+                date_created=datetime.datetime.now(),
                 user=user,
             )
             account.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(account_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            {"account": account_serializer.errors, "user": user_seriallizer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class AccountBalanceView(APIView):
