@@ -15,8 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from rest_framework.documentation import include_docs_urls
 
 urlpatterns = [
     path("api/v1/", include("api.urls")),
+    path("api/docs/", include_docs_urls(title="Bank API")),
     path("admin/", admin.site.urls),
 ]
