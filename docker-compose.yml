@@ -16,8 +16,7 @@ services:
 
   test_django:
     build: .
-    image: django-rest-test
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8080"
+    command: bash -c "python manage.py runserver 0.0.0.0:8080"
     volumes:
       - .:/code
     ports:
