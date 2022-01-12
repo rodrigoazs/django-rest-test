@@ -1,8 +1,10 @@
 import datetime
 
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.http import HttpResponse
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -41,37 +43,53 @@ class AccountCreateView(APIView):
 
 
 class AccountBalanceView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def get(self, request, pk):
-        account = Account.objects.all().get(pk=pk)
-        serializer = AccountBalanceSerializer(account)
-        return Response(serializer.data)
+        user = request.user
+        account = Account.objects.get(pk=pk)
+        if user == account.user:
+            serializer = AccountBalanceSerializer(account)
+            return Response(serializer.data)
+        return Response({"message": "not allowed"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DepositView(APIView):
     def put(self, request, pk):
         serializer = AmountSerializer(data=request.data)
         if serializer.is_valid():
-            account = Account.objects.get(pk=pk)
-            account.balance += serializer.validated_data.get("amount", 0.0)
-            account.save()
-            return Response({"message": "deposit made", "new_balance": account.balance}, status=status.HTTP_201_CREATED)
+            with transaction.atomic():
+                account = Account.objects.get(pk=pk)
+                account.balance += serializer.validated_data.get("amount", 0.0)
+                account.save()
+                return Response(
+                    {"message": "deposit made", "new_balance": account.balance}, status=status.HTTP_201_CREATED
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Withdrawl(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def put(self, request, pk):
+        user = request.user
         serializer = AmountSerializer(data=request.data)
         if serializer.is_valid():
-            account = Account.objects.get(pk=pk)
-            amount = serializer.validated_data.get("amount", 0.0)
-            if account.balance >= amount:
-                account.balance -= amount
-                account.save()
-                return Response(
-                    {"message": "withdrawl made", "balance": account.balance}, status=status.HTTP_201_CREATED
-                )
-            else:
-                return Response(
-                    {"message": "insufficient balance", "balance": account.balance}, status=status.HTTP_400_BAD_REQUEST
-                )
+            with transaction.atomic():
+                account = Account.objects.get(pk=pk)
+                if user == account.user:
+                    amount = serializer.validated_data.get("amount", 0.0)
+                    if account.balance >= amount:
+                        account.balance -= amount
+                        account.save()
+                        return Response(
+                            {"message": "withdrawl made", "balance": account.balance}, status=status.HTTP_201_CREATED
+                        )
+                    else:
+                        return Response(
+                            {"message": "insufficient balance", "balance": account.balance},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                else:
+                    return Response({"message": "not allowed"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
