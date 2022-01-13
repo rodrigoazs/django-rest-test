@@ -17,7 +17,7 @@ class AccountCreateView(APIView):
     """A view for creating a bank account. An account is associated to an user."""
 
     schema = ManualSchema(
-        description="A view for creating a bank account. An account is associated to an user.",
+        description="Creates a bank account.",
         encoding="application/json",
         fields=[
             coreapi.Field(
@@ -85,6 +85,11 @@ class AccountBalanceView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
+    schema = ManualSchema(
+        description="Consults the account balance. Need authentication.",
+        fields=[],
+    )
+
     def get(self, request):
         user = request.user
         # get authenticated user account
@@ -97,7 +102,7 @@ class DepositView(APIView):
     """A view for depositing money in someones' account."""
 
     schema = ManualSchema(
-        description="A view for depositing money in someones' account.",
+        description="Make a deposit to a bank account.",
         encoding="application/json",
         fields=[
             coreapi.Field(
@@ -150,7 +155,7 @@ class WithdrawalView(APIView):
     permission_classes = (IsAuthenticated,)
 
     schema = ManualSchema(
-        description="A view for withdrawing money from person own account. Need authentication.",
+        description="Withdraw money from the bank account.",
         encoding="application/json",
         fields=[
             coreapi.Field(
