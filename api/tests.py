@@ -49,7 +49,6 @@ class ApiTest(TestCase):
         request = self.factory.post("/api/v1/create_account/", data)
         response = AccountCreateView.as_view()(request)
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data.get("message"), "account created")
 
     def test_balance_no_auth(self):
         """Asserts non authenticated users cannot check their balance"""
@@ -71,32 +70,28 @@ class ApiTest(TestCase):
         """Asserts error response when make a deposit to an unknown account"""
         request = self.factory.put("/api/v1/deposit/", {"amount": 50.0})
         response = DepositView.as_view()(request, username="inexistent")
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data.get("message"), "account not found")
+        self.assertEqual(response.status_code, 404)
 
     def test_deposit_existent_account(self):
         """Asserts make a deposit to an account"""
         request = self.factory.put("/api/v1/deposit/", {"amount": 50.0})
         response = DepositView.as_view()(request, username="test")
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data.get("message"), "deposit made")
-        self.assertEqual(response.data.get("new_balance"), 50.0)
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.data.get("balance"), 50.0)
 
     def test_deposit_sum(self):
         """Asserts sums two consecutives deposits"""
         for amount, new_balance in [(15.0, 15.0), (35.0, 50.0)]:
             request = self.factory.put("/api/v1/deposit/", {"amount": amount})
             response = DepositView.as_view()(request, username="test")
-            self.assertEqual(response.status_code, 201)
-            self.assertEqual(response.data.get("message"), "deposit made")
-            self.assertEqual(response.data.get("new_balance"), new_balance)
+            self.assertEqual(response.status_code, 202)
+            self.assertEqual(response.data.get("balance"), new_balance)
 
     def test_deposit_max(self):
         """Asserts person can deposit more than maximum balance"""
         request = self.factory.put("/api/v1/deposit/", {"amount": 1000.0})
         response = DepositView.as_view()(request, username="test3")
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data.get("message"), "max balance reached")
+        self.assertEqual(response.status_code, 406)
 
     def test_withdrawal_no_auth(self):
         """Asserts non authenticated users cannot withdraw money"""
@@ -110,6 +105,5 @@ class ApiTest(TestCase):
         user = User.objects.get(pk=2)
         force_authenticate(request, user=user)
         response = WithdrawalView.as_view()(request)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data.get("message"), "withdrawal made")
+        self.assertEqual(response.status_code, 202)
         self.assertEqual(response.data.get("balance"), 10.0)
