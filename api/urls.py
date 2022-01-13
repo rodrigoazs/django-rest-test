@@ -9,6 +9,6 @@ urlpatterns = [
     path("token/refresh/", jwt_views.TokenRefreshView.as_view(), name="token_refresh"),
     path("create_account/", views.AccountCreateView.as_view(), name="account_create"),
     path("balance/<int:pk>/", views.AccountBalanceView.as_view(), name="account_balance"),
-    path("deposit/<int:pk>/", views.DepositView.as_view(), name="deposit"),
-    path("withdrawal/<int:pk>/", views.Withdrawal.as_view(), name="withdrawal"),
+    path("deposit/<str:username>/", views.DepositView.as_view(), name="deposit"),
+    path("withdrawal/<int:pk>/", views.WithdrawalView.as_view(), name="withdrawal"),
 ]
