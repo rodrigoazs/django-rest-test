@@ -1,6 +1,31 @@
 # django-rest-test
 A technical test
 
+## Hooks installed
+| Package | Description |
+| --- | --- |
+| black | xxx |
+| isort | xxx |
+| flake8 | xxx |
+| bandit | xxx |
+
+## Installation
+In order to install locally for development purposes
+```
+make install
+export DJANGO_DEVELOPMENT=True
+python manage.py migrate
+```
+
+## Testing
+```
+export DJANGO_DEVELOPMENT=True
+python manage.py test
+```
+
+## API documentation
+A documentation generated through `coreapi` can also be viewed in `api/docs/`.
+
 | Verb | Endpoint | Description | Request Body | Response |
 | --- | --- | --- | --- | --- |
 | GET | api/v1/balance/ | Consults the account balance. Need authentication. | None | 200 OK, response data: {"balance": float}  / 401 UNAUTHORIZED for Authentication credentials not provided |
