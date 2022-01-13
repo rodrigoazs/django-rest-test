@@ -23,6 +23,7 @@ class AccountCreateView(APIView):
             user = User.objects.create(**user_serializer.validated_data)
             user.set_password(password)
             user.save()
+
             # create account associated to user
             account = Account.objects.create(user=user)
             account.save()
@@ -80,6 +81,7 @@ class DepositView(APIView):
 
                 # save deposit
                 account.save()
+
                 return Response({"balance": account.balance}, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
