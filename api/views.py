@@ -1,9 +1,12 @@
+import coreapi
+import coreschema
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 
 from .models import Account
@@ -12,6 +15,40 @@ from .serializers import AccountBalanceSerializer, AmountSerializer, UserSeriali
 
 class AccountCreateView(APIView):
     """A view for creating a bank account. An account is associated to an user."""
+
+    schema = ManualSchema(
+        description="A view for creating a bank account. An account is associated to an user.",
+        encoding="application/json",
+        fields=[
+            coreapi.Field(
+                "username",
+                required=True,
+                location="form",
+                schema=coreschema.String(description="Username for the account"),
+            ),
+            coreapi.Field(
+                "first_name",
+                required=True,
+                location="form",
+                schema=coreschema.String(description="First name of the owner"),
+            ),
+            coreapi.Field(
+                "last_name",
+                required=True,
+                location="form",
+                schema=coreschema.String(description="Last name of the owner"),
+            ),
+            coreapi.Field(
+                "email", required=True, location="form", schema=coreschema.String(description="Email of the owner")
+            ),
+            coreapi.Field(
+                "password",
+                required=True,
+                location="form",
+                schema=coreschema.String(description="Password for the account"),
+            ),
+        ],
+    )
 
     def post(self, request):
         user_serializer = UserSerializer(data=request.data)
@@ -59,6 +96,25 @@ class AccountBalanceView(APIView):
 class DepositView(APIView):
     """A view for depositing money in someones' account."""
 
+    schema = ManualSchema(
+        description="A view for depositing money in someones' account.",
+        encoding="application/json",
+        fields=[
+            coreapi.Field(
+                "amount",
+                required=True,
+                location="form",
+                schema=coreschema.Integer(description="Amount of money to deposit"),
+            ),
+            coreapi.Field(
+                "username",
+                required=True,
+                location="path",
+                schema=coreschema.String(description="Username for the account to deposit"),
+            ),
+        ],
+    )
+
     def put(self, request, username):
         serializer = AmountSerializer(data=request.data)
 
@@ -92,6 +148,19 @@ class WithdrawalView(APIView):
     """
 
     permission_classes = (IsAuthenticated,)
+
+    schema = ManualSchema(
+        description="A view for withdrawing money from person own account. Need authentication.",
+        encoding="application/json",
+        fields=[
+            coreapi.Field(
+                "amount",
+                required=True,
+                location="form",
+                schema=coreschema.Integer(description="Amount of money to deposit"),
+            ),
+        ],
+    )
 
     def put(self, request):
         user = request.user
