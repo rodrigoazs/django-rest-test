@@ -1,10 +1,11 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from .models import Account
-from .views import AccountBalanceView, DepositView, WithdrawalView
+from .views import AccountBalanceView, AccountCreateView, DepositView, WithdrawalView
 
 # Create your tests here.
 
@@ -34,6 +35,21 @@ class ApiTest(TestCase):
         Account.objects.create(user=user)
         user = User.objects.create(username="test2")
         Account.objects.create(balance=100.0, user=user)
+        user = User.objects.create(username="test3")
+        Account.objects.create(balance=settings.MAX_BALANCE_AMOUNT - 10.0, user=user)
+
+    def test_account_creation(self):
+        data = {
+            "username": "test4",
+            "first_name": "Test",
+            "last_name": "Test",
+            "email": "test@test.com",
+            "password": "test",
+        }
+        request = self.factory.post("/api/v1/create_account/", data)
+        response = AccountCreateView.as_view()(request)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data.get("message"), "account created")
 
     def test_balance_no_auth(self):
         """Asserts non authenticated users cannot check their balance"""
@@ -75,7 +91,12 @@ class ApiTest(TestCase):
             self.assertEqual(response.data.get("message"), "deposit made")
             self.assertEqual(response.data.get("new_balance"), new_balance)
 
-    # def test_deposit_max(self):
+    def test_deposit_max(self):
+        """Asserts person can deposit more than maximum balance"""
+        request = self.factory.put("/api/v1/deposit/", {"amount": 1000.0})
+        response = DepositView.as_view()(request, username="test3")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data.get("message"), "max balance reached")
 
     def test_withdrawal_no_auth(self):
         """Asserts non authenticated users cannot withdraw money"""

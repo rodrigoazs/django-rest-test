@@ -126,5 +126,8 @@ REST_FRAMEWORK = {
     ],
 }
 
+# max balance amount
+MAX_BALANCE_AMOUNT = 100000000
+
 # django_heroku
 django_on_heroku.settings(locals())

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import HttpResponse
@@ -58,6 +59,8 @@ class DepositView(APIView):
                 if account is None:
                     return Response({"message": "account not found"}, status=status.HTTP_400_BAD_REQUEST)
                 account.balance += serializer.validated_data.get("amount", 0.0)
+                if account.balance > settings.MAX_BALANCE_AMOUNT:
+                    return Response({"message": "max balance reached"}, status=status.HTTP_400_BAD_REQUEST)
                 account.save()
                 return Response(
                     {"message": "deposit made", "new_balance": account.balance}, status=status.HTTP_201_CREATED
