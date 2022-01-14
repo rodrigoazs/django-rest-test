@@ -1,6 +1,13 @@
 # django-rest-test
 
-The problem is to develop an API of a bank system that provides 4 different basic operations, these are: creating an account, checking balance of an account, deposit money to an account and withdraw money from an account. All API responses are JSON.
+Django-test-test is an API for a bank system developed with **Django/REST Framework** that provides 4 different basic operations:
+
+* Creating an account
+* Checking balance of an account
+* Deposit money to an account
+* Withdraw money from an account.
+
+In order to authorize users operations a JSON Web Token has to be generated and refreshed constantly.
 
 ## Comments
 
