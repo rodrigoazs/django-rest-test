@@ -130,3 +130,18 @@ MAX_BALANCE_AMOUNT = 100000000
 
 # django_heroku
 django_on_heroku.settings(locals())
+
+# for development enviroment
+if os.environ.get("DJANGO_DEVELOPMENT"):
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG = True
+
+    # Database
+    # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "sqlite3",
+        }
+    }
