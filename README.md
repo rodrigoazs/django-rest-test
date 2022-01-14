@@ -27,6 +27,18 @@ The `make install` will install pre-commit and the libraries presented in the `r
 
 > It was chosen not to proceed with Docker solution because it would be too much for simpling running Django and Postgresql images, and in order to make sure it also runs without Docker the tester would need to have a Postgresql instance installed. Then it was chosen to uses SQLite when running the web server on development mode. 
 
+## Run locally
+
+In order to run locally, run the following command:
+
+```
+python manage.y runserver 0.0.0.0:8080
+```
+
+And you will be able to access the endpoint `http://localhost:8080/api/v1/` locally.
+
+Make sure `DJANGO_DEVELOPMENT` environment variable is set as True.
+
 ## Testing
 
 In order assert endpoints and models are working properly a bunch of automated tests were designed to be checked. This can be done with Django through the following command:
@@ -38,7 +50,7 @@ python manage.py test
 Make sure `DJANGO_DEVELOPMENT` environment variable is set as True.
 
 ## API documentation
-A documentation generated through `coreapi` can also be viewed in `api/docs/`.
+A documentation generated through `coreapi` can also be viewed in the endpoint `api/docs/`.
 
 | Verb | Endpoint | Description | Request Body | Response |
 | --- | --- | --- | --- | --- |
@@ -48,3 +60,5 @@ A documentation generated through `coreapi` can also be viewed in `api/docs/`.
 | PUT | api/v1/withdrawal/ | Withdraw money from the bank account. | {"amount": float} | 202 ACCEPTED, response data: {"balance": float} / 406 NOT ACCEPTABLE for withdrawing more money than available in balance / 400 BAD REQUEST for invalid request data |
 | POST | api/v1/token/ | Takes a set of user credentials and returns an access and refresh JSON web token pair to prove the authentication of those credentials. | { "username": string, "password": string } | 200 OK, response data: {"refresh": string, "access": string} / 401 UNAUTHORIZED for incorrect login atempt / 400 BAD REQUEST for invalid request data|
 | POST | api/v1/token/refresh/ | Takes a refresh type JSON web token and returns an access type JSON web token if the refresh token is valid. | {"refresh": string} | 200 OK, response data: {"access": string} / 401 UNAUTHORIZED for token invalid or expired / 400 BAD REQUEST for invalid request data |
+
+
