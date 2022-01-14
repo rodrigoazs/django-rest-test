@@ -61,4 +61,52 @@ A documentation generated through `coreapi` can also be viewed in the endpoint `
 | POST | api/v1/token/ | Takes a set of user credentials and returns an access and refresh JSON web token pair to prove the authentication of those credentials. | { "username": string, "password": string } | 200 OK, response data: {"refresh": string, "access": string} / 401 UNAUTHORIZED for incorrect login atempt / 400 BAD REQUEST for invalid request data|
 | POST | api/v1/token/refresh/ | Takes a refresh type JSON web token and returns an access type JSON web token if the refresh token is valid. | {"refresh": string} | 200 OK, response data: {"access": string} / 401 UNAUTHORIZED for token invalid or expired / 400 BAD REQUEST for invalid request data |
 
+## Testing requests manually
 
+In order to test the API manually we can perform requests locally to `http://localhost:8080/api/v1/` or in production to `http://django-rest-test-rodrigo.herokuapp.com/api/v1/`.
+
+I recommend the use of [HTTPie](https://httpie.io/) as testing client. It can be install through `pip install httpie`.
+
+### Creating an account
+
+```
+http post http://django-rest-test-rodrigo.herokuapp.com/api/v1/create_account/ username=test first_name=Test last_name=Test email=test@test.com password=test
+```
+
+A new account will be created if the request is ok and it is a new user account.
+
+### Requesting token
+
+```
+http post http://django-rest-test-rodrigo.herokuapp.com/api/v1/token/ username=test password=test
+```
+
+A response data containing `access token` and `refresh token` will be sent. Collect the `access token` in order to be authorized to request withdrawal and check balance.
+
+## Refreshing token
+
+If the access token expires you need to refresh it. In order to do that make a request sending the `refresh token`.
+
+```
+http post http://django-rest-test-rodrigo.herokuapp.com/api/v1/token/refresh/ refresh={refresh token}
+```
+
+You will receive a new `access token`.
+
+## Checking balance
+
+```
+http get http://django-rest-test-rodrigo.herokuapp.com/api/v1/balance/ "Authorization: Bearer {access token}"
+```
+
+## Making a deposit
+
+```
+http put http://django-rest-test-rodrigo.herokuapp.com/api/v1/deposit/{username}/ amount=10.0
+```
+
+## Making a withdrawal
+
+```
+http put http://django-rest-test-rodrigo.herokuapp.com/api/v1/withdrawal/ "Authorization: Bearer {access token}" amount=10.0
+```
