@@ -1,13 +1,18 @@
 # django-rest-test
 A technical test
 
-## Hooks installed
+## Code styling and linting
+
+In order to be consistent with code style and formatting `pre-commit` was installed with 4 different hooks to help with code formatting and vulnerability checks.
+
 | Package | Description |
 | --- | --- |
-| black | xxx |
-| isort | xxx |
-| flake8 | xxx |
-| bandit | xxx |
+| black | A PEP 8 compliant opinionated formatter |
+| isort | A tool to sort imports alphabetically, and automatically separated into sections and by type |
+| flake8 | A linter tool to perform analysis of source code |
+| bandit | A tool designed to find common security issues in Python code |
+
+It was chosen not to install `flake-annotations`, used to assure type hints are being properly defined, because the code is very simple and the view parameters are all the same (only the request parameter).
 
 ## Installation
 In order to install locally for development purposes
