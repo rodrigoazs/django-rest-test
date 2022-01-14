@@ -3,6 +3,7 @@ import coreschema
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.db.utils import IntegrityError
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -57,9 +58,12 @@ class AccountCreateView(APIView):
         if user_serializer.is_valid():
             # create user
             password = user_serializer.validated_data.get("password")
-            user = User.objects.create(**user_serializer.validated_data)
-            user.set_password(password)
-            user.save()
+            try:
+                user = User.objects.create(**user_serializer.validated_data)
+                user.set_password(password)
+                user.save()
+            except IntegrityError as error:
+                return Response(error, status=status.HTTP_406_NOT_ACCEPTABLE)
 
             # create account associated to user
             account = Account.objects.create(user=user)

@@ -39,6 +39,7 @@ class ApiTest(TestCase):
         Account.objects.create(balance=settings.MAX_BALANCE_AMOUNT - 10.0, user=user)
 
     def test_account_creation(self):
+        """Asserts an account is created"""
         data = {
             "username": "test4",
             "first_name": "Test",
@@ -49,6 +50,19 @@ class ApiTest(TestCase):
         request = self.factory.post("/api/v1/create_account/", data)
         response = AccountCreateView.as_view()(request)
         self.assertEqual(response.status_code, 201)
+
+    def test_account_creation_existing_username(self):
+        """Asserts returns error 406 if the username already exists"""
+        data = {
+            "username": "test",
+            "first_name": "Test",
+            "last_name": "Test",
+            "email": "test@test.com",
+            "password": "test",
+        }
+        request = self.factory.post("/api/v1/create_account/", data)
+        response = AccountCreateView.as_view()(request)
+        self.assertEqual(response.status_code, 406)
 
     def test_balance_no_auth(self):
         """Asserts non authenticated users cannot check their balance"""
