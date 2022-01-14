@@ -83,7 +83,7 @@ http post http://django-rest-test-rodrigo.herokuapp.com/api/v1/token/ username=t
 
 A response data containing `access token` and `refresh token` will be sent. Collect the `access token` in order to be authorized to request withdrawal and check balance.
 
-## Refreshing token
+### Refreshing token
 
 If the access token expires you need to refresh it. In order to do that make a request sending the `refresh token`.
 
@@ -93,20 +93,26 @@ http post http://django-rest-test-rodrigo.herokuapp.com/api/v1/token/refresh/ re
 
 You will receive a new `access token`.
 
-## Checking balance
+### Checking balance
 
 ```
 http get http://django-rest-test-rodrigo.herokuapp.com/api/v1/balance/ "Authorization: Bearer {access token}"
 ```
 
-## Making a deposit
+You will check the balance of the authorized account considering the token provided.
+
+### Making a deposit
 
 ```
 http put http://django-rest-test-rodrigo.herokuapp.com/api/v1/deposit/{username}/ amount=10.0
 ```
 
-## Making a withdrawal
+You will make a deposit of 10.0 to an account considering the username provided as the parameter.
+
+### Making a withdrawal
 
 ```
 http put http://django-rest-test-rodrigo.herokuapp.com/api/v1/withdrawal/ "Authorization: Bearer {access token}" amount=10.0
 ```
+
+You will make a withdrawal of 10.0 from the authorized account considering the token provided.
