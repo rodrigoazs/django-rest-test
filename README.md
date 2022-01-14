@@ -12,21 +12,30 @@ In order to be consistent with code style and formatting `pre-commit` was instal
 | flake8 | A linter tool to perform analysis of source code |
 | bandit | A tool designed to find common security issues in Python code |
 
-It was chosen not to install `flake-annotations`, used to assure type hints are being properly defined, because the code is very simple and the view parameters are all the same (only the request parameter).
+> It was chosen not to install `flake-annotations`, used to assure type hints are being properly defined, because the code is very simple and the view parameters are all the same (only the request parameter).
 
 ## Installation
-In order to install locally for development purposes
+In order to install locally for development purposes it is necessary to have Python 3.8 and pip installed. Then, run the following code:
+
 ```
 make install
 export DJANGO_DEVELOPMENT=True
 python manage.py migrate
 ```
 
+The `make install` will install pre-commit and the libraries presented in the `requirements.txt`. The enviroment variable `DJANGO_DEVELOPMENT` will make sure we are running considering SQLite as the database and Debug also set as True. Migrate will then apply the migrations to the database.
+
+> It was chosen not to proceed with Docker solution because it would be too much for simpling running Django and Postgresql images, and in order to make sure it also runs without Docker the tester would need to have a Postgresql instance installed. Then it was chosen to uses SQLite when running the web server on development mode. 
+
 ## Testing
+
+In order assert endpoints and models are working properly a bunch of automated tests were designed to be checked. This can be done with Django through the following command:
+
 ```
-export DJANGO_DEVELOPMENT=True
 python manage.py test
 ```
+
+Make sure `DJANGO_DEVELOPMENT` environment variable is set as True.
 
 ## API documentation
 A documentation generated through `coreapi` can also be viewed in `api/docs/`.
